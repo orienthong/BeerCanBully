@@ -28,7 +28,8 @@ import SpriteKit
 class GameViewController: UIViewController {
   
   let helper = GameHelper()
-  
+  var menuScene = SCNScene(named: "resources.scnassets/Menu.scn")!
+  var levelScene = SCNScene(named: "resources.scnassets/Level.scn")!
   
   // Accessor for the SCNView
   var scnView: SCNView {
@@ -41,12 +42,15 @@ class GameViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
+    presentMenu()
   }
   
   // MARK: - Touches
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     super.touchesBegan(touches, with: event)
+    if helper.state == .tapToPlay {
+      presentLevel()
+    }
     
   }
   
@@ -64,4 +68,25 @@ class GameViewController: UIViewController {
     return UIDevice.current.userInterfaceIdiom == .phone ? .portrait : .all
   }
   
+  // MARK: - Helpers
+  func presentMenu() {
+    let hudNode = menuScene.rootNode.childNode(withName: "hud", recursively: true)!
+    hudNode.geometry?.materials = [helper.menuHUDMaterial]
+    hudNode.rotation = SCNVector4(x: 1, y: 0, z: 0, w: Float(M_PI))
+    
+    helper.state = .tapToPlay
+    
+    let transition = SKTransition.crossFade(withDuration: 1.0)
+    scnView.present(
+      menuScene,
+      with: transition,
+      incomingPointOfView: nil,
+      completionHandler: nil
+    )
+  }
+  func presentLevel() {
+    helper.state = .playing
+    let transition = SKTransition.crossFade(withDuration: 1.0)
+    scnView.present(levelScene, with: transition, incomingPointOfView: nil, completionHandler: nil)
+  }
 }
